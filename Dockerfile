@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM ubuntu:20.04
+FROM python:3.14-slim-bookworm
 
 ARG DEBIAN_FRONTEND="noninteractive"
 ENV LIBGL_ALWAYS_INDIRECT=1
@@ -32,25 +32,26 @@ ENV NVIDIA_DRIVER_CAPABILITIES \
 
 RUN apt-get update --fix-missing && \
     apt-get install -y \
-                    python3-dev \
-                    python3-pip \
+
                     git \
                     build-essential \
                     libgl1-mesa-dev \
                     mesa-utils \
                     libglu1-mesa-dev \
                     fontconfig \
-                    libfreetype6-dev
+                    libfreetype6-dev \
+                    libx11-6 \
+                    libxext6 \
+                    libxrender1 && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip
-RUN pip3 install PyOpenGL \
-                 PyOpenGL_accelerate
+RUN python -m pip install --no-cache-dir --upgrade pip
 
 RUN mkdir /f1tenth_gym
 COPY . /f1tenth_gym
 
 RUN cd /f1tenth_gym && \
-    pip3 install -e .
+    python -m pip install --no-cache-dir -e .
 
 WORKDIR /f1tenth_gym
 

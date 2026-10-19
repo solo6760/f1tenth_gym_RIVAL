@@ -13,17 +13,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
         
     - name: Install
       run: |
         python -m pip install --upgrade pip
-        pip install -e .
+        python -m pip install -e .
+        python -m pip check
+    - name: Simulator regression tests
+      run: >-
+        python -m unittest
+        f110_gym.unittest.compatibility_test
+        f110_gym.envs.dynamic_models
+        f110_gym.envs.collision_models.CollisionTests.test_random_collision
+        f110_gym.envs.collision_models.CollisionTests.test_multiple_collisions
+        -v

@@ -13,7 +13,11 @@
 
 Installation
 =================
-``f1tenth_gym`` is a pure Python library. We provide two ways to set up the environment.
+``f1tenth_gym`` supports Python 3.11–3.14; Python 3.14 is recommended.
+Use a fresh virtual environment rather than upgrading an old Python 3.8 environment.
+The existing four-value reset/step API is preserved. Rendering requires system
+OpenGL/GLU libraries and a working display.
+We provide two ways to set up the environment.
 
 .. image:: assets/docker_logo.png
 
@@ -26,7 +30,7 @@ A Dockerfile is provided. A container can be created by running the following co
 
     $ git clone https://github.com/f1tenth/f1tenth_gym.git
     $ cd f1tenth_gym
-    $ git checkout exp_py
+
     $ docker build -t f1tenth_gym -f Dockerfile .
     $ docker run -it --name=f1tenth_gym_container --rm f1tenth_gym
 
@@ -39,4 +43,11 @@ The environment is a Python package, and only depends on ``numpy``, ``scipy``, `
 
 .. code:: bash
 
-    $ pip3 install git+https://github.com/f1tenth/f1tenth_gym.git
+    $ python3.14 -m venv .venv
+    $ source .venv/bin/activate
+    $ python -m pip install --upgrade pip
+    $ python -m pip install -e .
+
+Run these commands from the repository checkout. Gym and pyglet are kept on
+legacy API versions to preserve existing callers and the OpenGL renderer;
+Gymnasium/pyglet 2 migration is intentionally outside this compatibility update.

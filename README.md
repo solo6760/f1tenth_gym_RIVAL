@@ -1,4 +1,4 @@
-![Python 3.8 3.9](https://github.com/f1tenth/f1tenth_gym/actions/workflows/ci.yml/badge.svg)
+![Python 3.11–3.14](https://github.com/f1tenth/f1tenth_gym/actions/workflows/ci.yml/badge.svg)
 ![Docker](https://github.com/f1tenth/f1tenth_gym/actions/workflows/docker.yml/badge.svg)
 # The F1TENTH Gym environment
 
@@ -9,20 +9,20 @@ This project is still under heavy developement.
 You can find the [documentation](https://f1tenth-gym.readthedocs.io/en/latest/) of the environment here.
 
 ## Quickstart
-We recommend installing the simulation inside a virtualenv. You can install the environment by running:
+Use Python 3.11–3.14 (Python 3.14 recommended) in a fresh virtual environment.
+Do not reuse an environment containing the old NumPy/Gym pins. From a checkout:
 
 ```bash
-virtualenv gym_env
-source gym_env/bin/activate
-git clone https://github.com/solo6760/f1tenth_gym_RIVAL
-cd f1tenth_gym
-pip install -e .
+python3.14 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
 ```
 
 Then you can run a quick waypoint follow example by:
 ```bash
 cd examples
-python3 waypoint_follow.py
+python waypoint_follow.py
 ```
 
 A Dockerfile is also provided with support for the GUI with nvidia-docker (nvidia GPU required):
@@ -32,21 +32,29 @@ docker run --gpus all -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix f
 ````
 Then the same example can be ran.
 
-## Known issues
-- Library support issues on Windows. You must use Python 3.8 as of 10-2021
-- On MacOS Big Sur and above, when rendering is turned on, you might encounter the error:
-```
-ImportError: Can't find framework /System/Library/Frameworks/OpenGL.framework.
-```
-You can fix the error by installing a newer version of pyglet:
+## Compatibility and testing
+
+The simulator retains its existing API: both `reset(poses)` and `step(actions)`
+return `(observation, reward, done, info)`. Physics, observations, control inputs,
+and rendering behavior are unchanged. Gym's newer API-checking/order wrappers are
+disabled for this legacy interface. Do not assume compatibility with Gym's modern
+wrappers or third-party tooling that requires a five-value step result.
+
+Gym 0.26.2 and pyglet 1.5 are intentionally retained instead of migrating to
+Gymnasium or pyglet 2, which would require API and renderer changes. Gym prints
+an upstream NumPy 2 warning; the simulator's own unwrapped paths are covered by
+regression tests, not all Gym environments/wrappers.
+
+Run the headless compatibility, dynamics, and collision correctness tests with:
+
 ```bash
-$ pip3 install pyglet==1.5.20
+python -m unittest f110_gym.unittest.compatibility_test f110_gym.envs.dynamic_models f110_gym.envs.collision_models.CollisionTests.test_random_collision f110_gym.envs.collision_models.CollisionTests.test_multiple_collisions -v
 ```
-And you might see an error similar to
-```
-f110-gym 0.2.1 requires pyglet<1.5, but you have pyglet 1.5.20 which is incompatible.
-```
-which could be ignored. The environment should still work without error.
+
+Rendering still requires a working display and system OpenGL/GLU libraries
+(e.g. `libgl1` and `libglu1-mesa` on Debian/Ubuntu). Python package installation
+alone does not supply these native libraries. Non-rendering simulation does not
+need a display. Windows and macOS GUI compatibility has not been verified.
 
 ## Citing
 If you find this Gym environment useful, please consider citing:

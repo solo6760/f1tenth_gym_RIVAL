@@ -1,1 +1,1 @@
-from gym.envs.unittest.scan_sim import *
+"""Tests for the F1TENTH simulator."""

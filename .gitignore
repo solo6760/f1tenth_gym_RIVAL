@@ -1,4 +1,7 @@
 build/
+dist/
+.venv*/
+venv/
 gym/f110_gym.egg-info
 __pycache__
 *.pyc
